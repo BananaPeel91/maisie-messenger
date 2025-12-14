@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: maisie-messenger
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=Maisie Messenger
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=${APP_KEY}
+      - API_KEY=${API_KEY}
+      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+      - WHATSAPP_RECIPIENT_NUMBER=${WHATSAPP_RECIPIENT_NUMBER}
+      - WHATSAPP_SENDER_NAME=${WHATSAPP_SENDER_NAME:-Maisie}
+    volumes:
+      - ./storage/logs:/app/storage/logs
+    restart: unless-stopped
+
