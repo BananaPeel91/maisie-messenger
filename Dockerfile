@@ -33,5 +33,5 @@ RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions sto
 # Expose port
 EXPOSE 8000
 
-# Start PHP's built-in server
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+# Start PHP's built-in server - use Railway's PORT variable
+CMD sh -c "php -S 0.0.0.0:${PORT:-8000} -t public"
