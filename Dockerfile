@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && a2enmod rewrite \
+    && a2dismod mpm_event mpm_worker \
+    && a2enmod mpm_prefork \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
