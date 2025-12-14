@@ -30,8 +30,12 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts \
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Copy and make entrypoint executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Expose port
 EXPOSE 8000
 
 # Start PHP's built-in server - use Railway's PORT variable
-CMD sh -c "php -S 0.0.0.0:${PORT:-8000} -t public"
+ENTRYPOINT ["/entrypoint.sh"]
