@@ -1,24 +1,27 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: maisie-messenger
+  web:
+    build: .
     ports:
-      - "8001:8000"
-    env_file:
-      - .env
+      - "8000:80"
+    volumes:
+      - ./storage/logs:/var/www/html/storage/logs
     environment:
       - APP_NAME=Maisie Messenger
       - APP_ENV=local
+      - APP_KEY=base64:cUbVzwwNzVH55m6SMGqesaEOC0bJRxse3b92UE2Jgw=
       - APP_DEBUG=true
-      - APP_KEY=${APP_KEY}
-      - API_KEY=${API_KEY}
-      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
-      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
-      - WHATSAPP_RECIPIENT_NUMBER=${WHATSAPP_RECIPIENT_NUMBER}
-      - WHATSAPP_SENDER_NAME=${WHATSAPP_SENDER_NAME:-Maisie}
-    volumes:
-      - ./storage/logs:/app/storage/logs
+      - APP_URL=http://localhost:8000
+      - LOG_CHANNEL=stderr
+      - API_KEY=3C52410A82F6B28CB3A65B234A70EACBC881B0CDE94D17E8018E9F8C373A2400
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USERNAME=gp040109@gmail.com
+      - MAIL_PASSWORD=apqnbbvyfduiorhw
+      - MAIL_ENCRYPTION=tls
+      - MAIL_FROM_ADDRESS=gp040109@gmail.com
+      - MAIL_FROM_NAME=Maisie
+      - RECIPIENT_EMAIL=gp040109@gmail.com
+      - RECIPIENT_NAME=Mummy
+      - SENDER_NAME=Maisie
     restart: unless-stopped
-
