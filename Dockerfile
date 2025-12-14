@@ -41,7 +41,11 @@ RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions sto
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Copy and setup entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 80
 
-# Start Apache (Railway will handle PORT automatically)
-CMD ["apache2-foreground"]
+# Use entrypoint to configure Apache for Railway's PORT
+ENTRYPOINT ["docker-entrypoint.sh"]
