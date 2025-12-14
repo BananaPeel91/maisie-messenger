@@ -5,10 +5,15 @@ RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && a2enmod rewrite \
-    && a2dismod mpm_event mpm_worker \
-    && a2enmod mpm_prefork \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Fix MPM conflict - ensure only prefork is enabled
+RUN a2dismod mpm_event 2>/dev/null || true \
+    && a2dismod mpm_worker 2>/dev/null || true \
+    && rm -f /etc/apache2/mods-enabled/mpm_event.load 2>/dev/null || true \
+    && rm -f /etc/apache2/mods-enabled/mpm_worker.load 2>/dev/null || true \
+    && a2enmod mpm_prefork
 
 # Set document root to public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
