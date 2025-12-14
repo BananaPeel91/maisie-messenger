@@ -1,21 +1,12 @@
 FROM php:8.4-apache
 
-# Install system dependencies and PHP extensions
+# Install PHP extensions
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && a2enmod rewrite \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Fix MPM conflict - ensure only prefork is enabled
-RUN ls -la /etc/apache2/mods-enabled/ | grep mpm || true \
-    && a2dismod -f mpm_event 2>/dev/null || true \
-    && a2dismod -f mpm_worker 2>/dev/null || true \
-    && rm -f /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || true \
-    && rm -f /etc/apache2/mods-enabled/mpm_*.conf 2>/dev/null || true \
-    && a2enmod mpm_prefork \
-    && ls -la /etc/apache2/mods-enabled/ | grep mpm || true
 
 # Set document root to public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -34,8 +25,8 @@ WORKDIR /var/www/html
 # Copy composer files first for better caching
 COPY composer.json composer.lock* ./
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
+# Install dependencies (no scripts yet, we need all files first)
+RUN composer install --no-dev --no-scripts --no-autoloader
 
 # Copy application files
 COPY . .
@@ -44,7 +35,11 @@ COPY . .
 RUN composer dump-autoload --optimize --no-scripts
 
 # Create storage directories and set permissions
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
+RUN mkdir -p storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
@@ -54,5 +49,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
 
-# Use entrypoint to configure Apache for Railway's PORT
 ENTRYPOINT ["docker-entrypoint.sh"]
