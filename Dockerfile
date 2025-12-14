@@ -1,4 +1,5 @@
 FROM php:8.4-apache
+# Force rebuild - v2
 
 # Install PHP extensions (minimal set like Chris project)
 RUN apt-get update && apt-get install -y \
