@@ -1,88 +1,46 @@
-# Maisie's WhatsApp Messenger 💕
+# Maisie's Messenger 💕
 
-A simple Laravel API that sends "I love you mummy" messages via WhatsApp Cloud API.
+A simple Laravel API that sends "I love you mummy" emails from Maisie.
 
 ## Requirements
 
-- PHP 8.1+ (or Docker)
-- Composer (or Docker)
-- A Meta Developer Account with WhatsApp Business API access
+- Docker (recommended) or PHP 8.1+
+- A Gmail account with App Password
 
-## Installation (Docker - Recommended)
+## Quick Start with Docker
 
-1. **Copy the environment file and configure it:**
+1. **Clone the repo and configure:**
    ```bash
+   git clone https://github.com/bananapeel91/maisie-messenger.git
+   cd maisie-messenger
    copy env.example .env
    ```
 
-2. **Edit `.env` with your credentials** (see Configuration section below)
+2. **Edit `.env` with your credentials:**
+   - `API_KEY` - A secure random string for authentication
+   - `MAIL_USERNAME` - Your Gmail address
+   - `MAIL_PASSWORD` - Your Gmail App Password (see below)
+   - `MAIL_FROM_ADDRESS` - Same as MAIL_USERNAME
+   - `RECIPIENT_EMAIL` - Your mum's email address
 
-3. **Generate an app key:**
+3. **Generate an APP_KEY:**
    ```bash
-   docker run --rm -v ${PWD}:/app -w /app php:8.2-cli php -r "echo 'APP_KEY=base64:' . base64_encode(random_bytes(32)) . PHP_EOL;"
+   docker run --rm php:8.4-cli php -r "echo 'base64:' . base64_encode(random_bytes(32));"
    ```
    Add this to your `.env` file.
 
-4. **Build and run with Docker Compose:**
+4. **Build and run:**
    ```bash
-   docker-compose up -d
+   docker-compose up -d --build
    ```
 
-The API will be available at `http://localhost:8000`
+## Getting a Gmail App Password
 
-## Installation (Without Docker)
-
-1. **Install dependencies:**
-   ```bash
-   composer install
-   ```
-
-2. **Set up environment:**
-   ```bash
-   copy env.example .env
-   php artisan key:generate
-   ```
-
-3. **Configure your `.env` file with WhatsApp credentials:**
-   ```env
-   # Your API key for securing the endpoint (generate a random string)
-   API_KEY=your-secure-random-api-key
-
-   # WhatsApp Cloud API credentials from Meta Developer Portal
-   WHATSAPP_ACCESS_TOKEN=your-access-token-from-meta
-   WHATSAPP_PHONE_NUMBER_ID=your-phone-number-id
-   WHATSAPP_RECIPIENT_NUMBER=447XXXXXXXXX
-   WHATSAPP_SENDER_NAME=Maisie
-   ```
-
-## Getting WhatsApp Cloud API Credentials
-
-1. Go to [Meta Developer Portal](https://developers.facebook.com/)
-2. Create a new app or use an existing one
-3. Add the WhatsApp product to your app
-4. In WhatsApp > Getting Started, you'll find:
-   - **Phone Number ID**: The ID of your WhatsApp Business phone number
-   - **Access Token**: Your permanent or temporary access token
-5. Add your mummy's phone number to the test numbers (or go live for production)
-
-## Running the Server
-
-**With Docker:**
-```bash
-docker-compose up -d
-```
-
-**Without Docker:**
-```bash
-php artisan serve
-```
-
-The server will start at `http://localhost:8000`
-
-**Stop Docker container:**
-```bash
-docker-compose down
-```
+1. Go to [myaccount.google.com/security](https://myaccount.google.com/security)
+2. Enable **2-Step Verification** if not already enabled
+3. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+4. Create an app password for "Mail"
+5. Copy the 16-character password (remove spaces when adding to `.env`)
 
 ## Usage
 
@@ -95,63 +53,53 @@ docker-compose down
 
 **Example with cURL:**
 ```bash
-curl -X POST http://localhost:8000/api/send-love \
-  -H "X-API-Key: your-secure-api-key" \
-  -H "Content-Type: application/json"
+curl -X POST http://localhost:8001/api/send-love \
+  -H "X-API-Key: your-api-key"
 ```
 
 **Example with PowerShell:**
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:8000/api/send-love" `
+Invoke-RestMethod -Uri "http://localhost:8001/api/send-love" `
   -Method POST `
-  -Headers @{"X-API-Key" = "your-secure-api-key"}
+  -Headers @{"X-API-Key" = "your-api-key"}
 ```
 
 ### Success Response
 ```json
 {
   "success": true,
-  "message": "Message sent successfully!",
-  "message_id": "wamid.xxx..."
-}
-```
-
-### Error Response
-```json
-{
-  "success": false,
-  "message": "Invalid or missing API key"
+  "message": "Message sent successfully!"
 }
 ```
 
 ## Message Content
 
-The message sent will be:
-```
-I love you mummy 💕
-
-- Maisie
-```
+Your mum will receive an email with:
+- **Subject:** A message from Maisie 💕
+- **Body:** I love you mummy 💕 - Maisie
 
 ## Security
 
-- The endpoint is protected by an API key that must be sent in the `X-API-Key` header
-- Store your API key securely and never commit it to version control
-- The `.env` file should never be committed to git
+- The endpoint is protected by an API key in the `X-API-Key` header
+- Never commit your `.env` file to version control
+- Keep your API key and Gmail app password secure
 
-## Generating a Secure API Key
+## Docker Commands
 
-You can generate a secure API key using PHP:
 ```bash
-php -r "echo bin2hex(random_bytes(32));"
-```
+# Start
+docker-compose up -d
 
-Or using PowerShell:
-```powershell
--join ((1..64) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
+# Stop
+docker-compose down
+
+# Rebuild after changes
+docker-compose up -d --build
+
+# View logs
+docker logs maisie-messenger
 ```
 
 ## License
 
 Made with love for Mummy 💕
-

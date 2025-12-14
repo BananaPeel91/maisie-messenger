@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM php:8.4-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -19,25 +19,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files first for better caching
-COPY composer.json composer.lock* ./
-
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-
-# Copy application code
+# Copy all application code first
 COPY . .
 
-# Run post-install scripts
-RUN composer dump-autoload --optimize
+# Install dependencies without running scripts
+RUN composer install --no-dev --optimize-autoloader --no-scripts \
+    && composer dump-autoload --optimize --no-scripts
 
-# Create storage directories
+# Create storage directories and set permissions
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
 # Expose port
 EXPOSE 8000
 
-# Start the Laravel development server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
-
+# Start PHP's built-in server
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]

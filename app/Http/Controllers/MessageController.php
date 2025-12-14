@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\WhatsAppService;
+use App\Services\EmailService;
 use Illuminate\Http\JsonResponse;
 
 class MessageController extends Controller
 {
     public function __construct(
-        private WhatsAppService $whatsAppService
+        private EmailService $emailService
     ) {}
 
     /**
@@ -16,11 +16,10 @@ class MessageController extends Controller
      */
     public function sendLove(): JsonResponse
     {
-        $result = $this->whatsAppService->sendLoveMessage();
+        $result = $this->emailService->sendLoveMessage();
 
         $statusCode = $result['success'] ? 200 : 500;
 
         return response()->json($result, $statusCode);
     }
 }
-
