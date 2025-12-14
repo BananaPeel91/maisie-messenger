@@ -9,11 +9,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Fix MPM conflict - ensure only prefork is enabled
-RUN a2dismod mpm_event 2>/dev/null || true \
-    && a2dismod mpm_worker 2>/dev/null || true \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.load 2>/dev/null || true \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load 2>/dev/null || true \
-    && a2enmod mpm_prefork
+RUN ls -la /etc/apache2/mods-enabled/ | grep mpm || true \
+    && a2dismod -f mpm_event 2>/dev/null || true \
+    && a2dismod -f mpm_worker 2>/dev/null || true \
+    && rm -f /etc/apache2/mods-enabled/mpm_*.load 2>/dev/null || true \
+    && rm -f /etc/apache2/mods-enabled/mpm_*.conf 2>/dev/null || true \
+    && a2enmod mpm_prefork \
+    && ls -la /etc/apache2/mods-enabled/ | grep mpm || true
 
 # Set document root to public folder
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
